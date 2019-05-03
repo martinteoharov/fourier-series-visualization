@@ -7,7 +7,12 @@ var movX2 = 0, movY2 = 0;
 var movX3 = 0, movY3 = 0;
 var lineX = 400;
 
+var cirX = [], cirY = [];
+var formulaCount = 1;
+
 var points = [1000];
+
+var coc = 5;
 
 function setup() {
 	createCanvas(dimX, dimY);
@@ -17,7 +22,7 @@ function draw() {
 	clear();
 	background(51);
 
-	circles(2);
+	circles(coc);
 
 	beginShape();
 	noFill();
@@ -30,36 +35,37 @@ function draw() {
 		points.pop();
 	}
 	
-	time += 0.05;
+	time += 0.04;
 }
 function circles(count){
 
 	stroke(255);
 	noFill();
-	circle(x, y, r);
+	formulaCount = -1;
+	for( var i = 0; i < count; i ++ ){
+		if( i == 0 ){
+			cirX[i] = r*cos(time) + x;
+			cirY[i] = r*sin(time) + y;
+			circle(x, y, r);
+		}
+		else{
+			cirX[i] = r/i*formulaCount*cos(time*formulaCount)/formulaCount + cirX[i-1];	
+			cirY[i] = r/i*formulaCount*sin(time*formulaCount)/formulaCount + cirY[i-1];	
+			circle(cirX[i], cirY[i], r/(i*2));
+		}
+		formulaCount += 2;
+	}
 
-	stroke(255);
-	noFill();
-	circle(movX, movY, r/2);
-	movX = r*cos(time) + x;
-	movY = r*sin(time) + y;
+	var last = cirY.length;
+	points.unshift(cirY[last-1]);
 	
-	stroke(255);
-	line(x, y, movX, movY);
 
-	movX2 = r/2*3*cos(time*3)/3 + movX;
-	movY2 = r/2*3*sin(time*3)/3 + movY;
-	circle(movX2, movY2, r/4);
-
-	movX3 = r/4*5*cos(time*5)/5 + movX2;
-	movY3 = r/4*5*sin(time*5)/5 + movY2;
-	circle(movX3, movY3, r/8);
-	points.unshift(movY3);
-
-	stroke(255);
-	line(movX, movY, movX2, movY2);
+	line(x, y, cirX[0], cirY[0]);
+	for( var i = 0; i < count ; i ++ ){
+		line(cirX[i], cirY[i], cirX[i+1], cirY[i+1]);
+	}
 	
-	stroke(255);
-	line(movX3, movY3, lineX, movY3);
+	//final line
+	line(cirX[last - 1], cirY[last - 1], lineX, cirY[last - 1]);
 }
 
